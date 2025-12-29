@@ -42,5 +42,5 @@ def analyze_complexity(sizes):
     }
 
 if __name__ == "__main__":
-    sizes = [5, 10, 15, 20, 25]
+    sizes = [1, 5, 10, 15, 20, 30, 50, 100]
     analyze_complexity(sizes)

@@ -43,7 +43,7 @@ def run_dfs_recursive():
 @app.route('/run_analysis', methods=['POST'])
 def run_analysis():
     data = request.json
-    sizes = data.get('sizes', [5, 10, 15, 20])
+    sizes = data.get('sizes', [1, 5, 10, 15, 20, 30, 50, 100])
     result = analyze_complexity(sizes)
     return jsonify(result)
 

@@ -152,12 +152,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function runAnalysis() {
-        const maxN = n;  // Use the current maze size n
-        const sizes = [];
-        const step = maxN > 100 ? 50 : 5;
-        for (let i = 5; i <= maxN; i += step) {
-            sizes.push(i);
-        }
+        // const maxN = n;  // Use the current maze size n
+        const sizes = [1, 5, 10, 15, 20, 30, 50, 100];
+        
         console.log('Running analysis for sizes:', sizes);
         fetch('/run_analysis', {
             method: 'POST',
@@ -191,13 +188,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const view = document.querySelector('input[name="view"]:checked').value;
         if (view === 'table') {
             // Table
-            let tableHtml = '<table id="analysis-table"><thead><tr><th>N</th><th>DFS Iterative Time (s)</th><th>DFS Recursive Time (s)</th><th>DFS Iterative Nodes</th><th>DFS Recursive Nodes</th></tr></thead><tbody>';
+            let tableHtml = '<div style="display:flex;justify-content:center;"><table id="analysis-table" style="margin:auto;"><thead><tr><th>N</th><th>DFS Iterative Time (µs)</th><th>DFS Recursive Time (µs)</th><th>DFS Iterative Nodes</th><th>DFS Recursive Nodes</th></tr></thead><tbody>';
             for (let i = 0; i < analysisData.sizes.length; i++) {
-                const recTime = analysisData.recursive_times[i] !== null ? analysisData.recursive_times[i].toFixed(6) : 'N/A';
+                const itTime = analysisData.iterative_times[i] !== null ? (analysisData.iterative_times[i] * 1e6).toFixed(2) + ' µs' : 'N/A';
+                const recTime = analysisData.recursive_times[i] !== null ? (analysisData.recursive_times[i] * 1e6).toFixed(2) + ' µs' : 'N/A';
+                const itNodes = analysisData.iterative_nodes[i] !== null ? analysisData.iterative_nodes[i] : 'N/A';
                 const recNodes = analysisData.recursive_nodes[i] !== null ? analysisData.recursive_nodes[i] : 'N/A';
-                tableHtml += `<tr><td>${analysisData.sizes[i]}</td><td>${analysisData.iterative_times[i].toFixed(6)}</td><td>${recTime}</td><td>${analysisData.iterative_nodes[i]}</td><td>${recNodes}</td></tr>`;
+                tableHtml += `<tr><td>${analysisData.sizes[i]}</td><td>${itTime}</td><td>${recTime}</td><td>${itNodes}</td><td>${recNodes}</td></tr>`;
             }
-            tableHtml += '</tbody></table>';
+            tableHtml += '</tbody></table></div>';
             analysisContent.innerHTML = tableHtml;
             exportControls.style.display = 'flex';
         } else if (view === 'line') {
@@ -206,14 +205,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const ctx = document.getElementById('analysis-chart').getContext('2d');
             const datasets = [
                 {
-                    label: 'DFS Iterative Time',
-                    data: analysisData.sizes.map((size, i) => ({ x: size, y: analysisData.iterative_times[i] })),
+                    label: 'DFS Iterative Time (µs)',
+                    data: analysisData.sizes.map((size, i) => ({ x: size, y: analysisData.iterative_times[i] !== null ? analysisData.iterative_times[i] * 1e6 : null })),
                     borderColor: 'blue',
                     fill: false
                 },
                 {
-                    label: 'DFS Recursive Time',
-                    data: analysisData.sizes.map((size, i) => analysisData.recursive_times[i] !== null ? { x: size, y: analysisData.recursive_times[i] } : null).filter(p => p !== null),
+                    label: 'DFS Recursive Time (µs)',
+                    data: analysisData.sizes.map((size, i) => analysisData.recursive_times[i] !== null ? { x: size, y: analysisData.recursive_times[i] * 1e6 } : null).filter(p => p !== null),
                     borderColor: 'red',
                     fill: false
                 }
@@ -236,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         y: {
                             title: {
                                 display: true,
-                                text: 'Time (seconds)'
+                                text: 'Time (µs)'
                             }
                         }
                     }
@@ -250,15 +249,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const labels = analysisData.sizes.map(size => size.toString());
             const datasets = [
                 {
-                    label: 'DFS Iterative Time',
-                    data: analysisData.iterative_times,
+                    label: 'DFS Iterative Time (µs)',
+                    data: analysisData.iterative_times.map(t => t !== null ? t * 1e6 : 0),
                     backgroundColor: 'rgba(0, 0, 255, 0.5)',
                     borderColor: 'blue',
                     borderWidth: 1
                 },
                 {
-                    label: 'DFS Recursive Time',
-                    data: analysisData.recursive_times.map(t => t !== null ? t : 0), // Use 0 for null to show bars, but perhaps filter
+                    label: 'DFS Recursive Time (µs)',
+                    data: analysisData.recursive_times.map(t => t !== null ? t * 1e6 : 0),
                     backgroundColor: 'rgba(255, 0, 0, 0.5)',
                     borderColor: 'red',
                     borderWidth: 1
@@ -281,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         y: {
                             title: {
                                 display: true,
-                                text: 'Time (seconds)'
+                                text: 'Time (µs)'
                             },
                             beginAtZero: true
                         }
@@ -417,10 +416,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function displayResult(data, type, element) {
         const algoName = 'DFS';
         if (data.path) {
+            const timeS = data.time.toFixed(6);
+            const timeUs = (data.time * 1e6).toFixed(2);
             element.innerHTML = `
                 <h3>${algoName}</h3>
                 <p>Path Length: ${data.path.length}</p>
-                <p>Time: ${data.time.toFixed(6)} seconds</p>
+                <p>Time: ${timeS} seconds / ${timeUs} µs</p>
                 <p>Nodes Visited: ${data.nodes}</p>
             `;
         } else {

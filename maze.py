@@ -18,6 +18,12 @@ def generate_maze(n):
     start = (0, 0)
     maze[0][0] = 0
 
+    # Ensure start is open and at least one neighbor is open
+    if n > 1:
+        # Buka salah satu neighbor start jika tertutup
+        if maze[0][1] == 1 and maze[1][0] == 1:
+            maze[0][1] = 0
+
     stack = [start]
     visited = set([start])
 
@@ -46,17 +52,21 @@ def generate_maze(n):
 
     exit_pos = (n-1, n-1)
     # Ensure exit is a path and connected
-    if maze[exit_pos[0]][exit_pos[1]] == 1:
-        # Carve a path to exit from a nearby carved cell
-        # Find a neighbor of exit that is carved
+    maze[exit_pos[0]][exit_pos[1]] = 0
+    # Pastikan minimal satu neighbor exit terbuka
+    has_open_neighbor = False
+    for dx, dy in directions:
+        nx, ny = exit_pos[0] + dx, exit_pos[1] + dy
+        if 0 <= nx < n and 0 <= ny < n and maze[nx][ny] == 0:
+            has_open_neighbor = True
+            break
+    if not has_open_neighbor:
+        # Buka salah satu neighbor exit
         for dx, dy in directions:
             nx, ny = exit_pos[0] + dx, exit_pos[1] + dy
-            if 0 <= nx < n and 0 <= ny < n and maze[nx][ny] == 0:
-                maze[exit_pos[0]][exit_pos[1]] = 0
+            if 0 <= nx < n and 0 <= ny < n:
+                maze[nx][ny] = 0
                 break
-        else:
-            # If no neighbor, set it anyway
-            maze[exit_pos[0]][exit_pos[1]] = 0
 
     return maze, exit_pos
 
