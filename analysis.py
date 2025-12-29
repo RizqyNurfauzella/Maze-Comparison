@@ -1,72 +1,44 @@
 import time
+import sys
 import matplotlib.pyplot as plt
 from maze import generate_maze
-from bfs_iterative import bfs_iterative
-from bfs_recursive import bfs_recursive
-from dfs import dfs
+from dfs import dfs_iterative, dfs_recursive_main
+
+# Increase recursion limit for larger mazes
+sys.setrecursionlimit(10000)
 
 def analyze_complexity(sizes):
     iterative_times = []
     recursive_times = []
-    dfs_times = []
     iterative_nodes = []
     recursive_nodes = []
-    dfs_nodes = []
 
     for n in sizes:
         start = (0, 0)
         maze, exit_pos = generate_maze(n)
 
-        # Iterative
-        path_i, _, time_i, nodes_i = bfs_iterative(maze, start, exit_pos)
+        # Iterative DFS
+        path_i, _, time_i, nodes_i = dfs_iterative(maze, start, exit_pos)
         iterative_times.append(time_i)
         iterative_nodes.append(nodes_i)
 
-        # Recursive
-        path_r, _, time_r, nodes_r = bfs_recursive(maze, start, exit_pos)
-        recursive_times.append(time_r)
-        recursive_nodes.append(nodes_r)
+        # Recursive DFS
+        try:
+            path_r, _, time_r, nodes_r = dfs_recursive_main(maze, start, exit_pos)
+            recursive_times.append(time_r)
+            recursive_nodes.append(nodes_r)
+        except RecursionError:
+            recursive_times.append(None)
+            recursive_nodes.append(None)
 
-        # DFS
-        path_d, _, time_d, nodes_d = dfs(maze, start, exit_pos)
-        dfs_times.append(time_d)
-        dfs_nodes.append(nodes_d)
-
-    # Plot times
-    plt.figure(figsize=(10, 5))
-    plt.subplot(1, 2, 1)
-    plt.plot(sizes, iterative_times, label='Iterative BFS', marker='o')
-    plt.plot(sizes, recursive_times, label='Recursive BFS', marker='o')
-    plt.plot(sizes, dfs_times, label='DFS', marker='o')
-    plt.xlabel('Maze Size (n x n)')
-    plt.ylabel('Time (seconds)')
-    plt.title('Running Time Comparison')
-    plt.legend()
-    plt.grid(True)
-
-    # Plot nodes
-    plt.subplot(1, 2, 2)
-    plt.plot(sizes, iterative_nodes, label='Iterative BFS', marker='o')
-    plt.plot(sizes, recursive_nodes, label='Recursive BFS', marker='o')
-    plt.plot(sizes, dfs_nodes, label='DFS', marker='o')
-    plt.xlabel('Maze Size (n x n)')
-    plt.ylabel('Nodes Visited')
-    plt.title('Nodes Visited Comparison')
-    plt.legend()
-    plt.grid(True)
-
-    plt.tight_layout()
-    plt.savefig('static/analysis.png')
-    plt.close()
+    # No plotting needed, using Chart.js on client
 
     return {
         'sizes': sizes,
         'iterative_times': iterative_times,
         'recursive_times': recursive_times,
-        'dfs_times': dfs_times,
         'iterative_nodes': iterative_nodes,
-        'recursive_nodes': recursive_nodes,
-        'dfs_nodes': dfs_nodes
+        'recursive_nodes': recursive_nodes
     }
 
 if __name__ == "__main__":

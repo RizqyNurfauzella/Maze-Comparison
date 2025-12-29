@@ -1,32 +1,83 @@
 import time
-from maze import get_neighbors
+from maze import get_neighbors, is_valid_move
 
-def dfs(maze, start, exit_pos):
+def dfs_recursive(maze, current, exit_pos, visited, visited_order, parent):
+    """
+    Recursive helper for DFS.
+    """
+    visited[current[0]][current[1]] = True
+    visited_order.append(current)
+
+    if current == exit_pos:
+        return True
+
+    for neighbor in get_neighbors(current):
+        if is_valid_move(maze, neighbor, visited):
+            parent[neighbor[0]][neighbor[1]] = current
+            if dfs_recursive(maze, neighbor, exit_pos, visited, visited_order, parent):
+                return True
+
+    return False
+
+def dfs_iterative(maze, start, exit_pos):
+    """
+    Iterative DFS to find path in maze.
+    Note: DFS does not guarantee shortest path.
+    Returns: path (list of positions), visited_order (list), time_taken, nodes_visited
+    """
+    start_time = time.perf_counter()
+    n = len(maze)
+    visited = [[False] * n for _ in range(n)]
+    parent = [[None] * n for _ in range(n)]
+    visited_order = []
+    stack = [start]
+    found = False
+
+    while stack:
+        current = stack.pop()
+        if not visited[current[0]][current[1]]:
+            visited_order.append(current)
+            visited[current[0]][current[1]] = True
+            if current == exit_pos:
+                found = True
+                break
+            for neighbor in get_neighbors(current):
+                if is_valid_move(maze, neighbor, visited):
+                    parent[neighbor[0]][neighbor[1]] = current
+                    stack.append(neighbor)
+
+    end_time = time.perf_counter()
+    time_taken = end_time - start_time
+    nodes_visited = len(visited_order)
+
+    if not found:
+        return None, visited_order, time_taken, nodes_visited
+
+    # Reconstruct path
+    path = []
+    current = exit_pos
+    while current is not None:
+        path.append(current)
+        current = parent[current[0]][current[1]]
+    path.reverse()
+
+    return path, visited_order, time_taken, nodes_visited
+
+def dfs_recursive_main(maze, start, exit_pos):
     """
     Recursive DFS to find path in maze.
     Note: DFS does not guarantee shortest path.
     Returns: path (list of positions), visited_order (list), time_taken, nodes_visited
     """
-    start_time = time.time()
+    start_time = time.perf_counter()
     n = len(maze)
     visited = [[False] * n for _ in range(n)]
     parent = [[None] * n for _ in range(n)]
     visited_order = []
 
-    def recurse(current):
-        visited_order.append(current)
-        visited[current[0]][current[1]] = True
-        if current == exit_pos:
-            return True
-        for neighbor in get_neighbors(current):
-            if 0 <= neighbor[0] < n and 0 <= neighbor[1] < n and maze[neighbor[0]][neighbor[1]] == 0 and not visited[neighbor[0]][neighbor[1]]:
-                parent[neighbor[0]][neighbor[1]] = current
-                if recurse(neighbor):
-                    return True
-        return False
+    found = dfs_recursive(maze, start, exit_pos, visited, visited_order, parent)
 
-    found = recurse(start)
-    end_time = time.time()
+    end_time = time.perf_counter()
     time_taken = end_time - start_time
     nodes_visited = len(visited_order)
 

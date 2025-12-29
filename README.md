@@ -1,18 +1,17 @@
-# Maze Runner: Algorithm Comparison Tool
+# Maze Runner: DFS Algorithm Comparison Tool
 
 ## 📋 Deskripsi Proyek
 
-Proyek ini adalah aplikasi web interaktif untuk membandingkan efisiensi algoritma pencarian jalur pada labirin (maze) dengan tema Maze Runner. Aplikasi ini mengimplementasikan tiga algoritma utama: **Breadth-First Search (BFS) Iteratif**, **Breadth-First Search (BFS) Rekursif**, dan **Depth-First Search (DFS)** untuk menemukan jalur terpendek dari titik awal ke titik akhir.
+Proyek ini adalah aplikasi web interaktif untuk membandingkan efisiensi algoritma **Depth-First Search (DFS) Iteratif** vs **DFS Rekursif** pada labirin (maze) dengan tema Maze Runner. Aplikasi ini mengimplementasikan kedua pendekatan DFS untuk menemukan jalur dari titik awal ke titik akhir.
 
-Proyek ini dikembangkan sebagai bagian dari Tugas Besar mata kuliah **Analisis Kompleksitas Algoritma**, dengan fokus pada analisis perbandingan kompleksitas waktu dan ruang antara pendekatan iteratif vs rekursif pada BFS, serta perbandingan dengan DFS.
+Proyek ini dikembangkan sebagai bagian dari Tugas Besar mata kuliah **Analisis Kompleksitas Algoritma**, dengan fokus pada analisis perbandingan kompleksitas waktu dan ruang antara pendekatan iteratif vs rekursif pada DFS.
 
 ## 🎯 Tujuan Akademik
 
-- Membandingkan efisiensi **BFS Iteratif** vs **BFS Rekursif** dalam hal:
+- Membandingkan efisiensi **DFS Iteratif** vs **DFS Rekursif** dalam hal:
   - Running Time
   - Space Complexity (overhead rekursi)
   - Praktikalitas implementasi
-- Menganalisis kompleksitas algoritma DFS sebagai baseline
 - Visualisasi proses pencarian jalur secara real-time
 - Analisis kompleksitas dengan berbagai ukuran input (N x N)
 
@@ -26,9 +25,8 @@ Proyek ini dikembangkan sebagai bagian dari Tugas Besar mata kuliah **Analisis K
 - Dead ends untuk meningkatkan kompleksitas
 
 ### 🔍 Algoritma Pencarian
-- **BFS Iteratif**: Implementasi standar dengan queue
-- **BFS Rekursif**: Simulasi BFS menggunakan rekursi
-- **DFS**: Baseline untuk perbandingan
+- **DFS Iteratif**: Implementasi standar dengan stack
+- **DFS Rekursif**: Implementasi rekursif murni untuk eksplorasi maze
 
 ### 🎬 Visualisasi Interaktif
 - Animasi step-by-step pencarian node (visited nodes berwarna kuning)
@@ -36,13 +34,12 @@ Proyek ini dikembangkan sebagai bagian dari Tugas Besar mata kuliah **Analisis K
 - Kontrol **Play/Pause/Reset**
 - Speed control (1x - 10x)
 - Highlight jalur terpendek dengan warna berbeda:
-  - BFS Iterative: **Biru**
-  - BFS Recursive: **Ungu**
-  - DFS: **Merah**
+  - DFS Iterative: **Biru**
+  - DFS Recursive: **Merah**
 
 ### 📊 Analisis Kompleksitas
-- Tabel perbandingan waktu eksekusi dan nodes dikunjungi
-- Grafik matplotlib untuk visualisasi tren kompleksitas
+- Tabel analisis waktu eksekusi dan nodes dikunjungi DFS
+- Grafik untuk visualisasi tren kompleksitas DFS
 - Input N untuk analisis berbagai ukuran maze (5-100)
 - Switch view antara **Table** dan **Graph**
 - **Export Table to CSV**: Download data analisis
@@ -100,10 +97,10 @@ Proyek ini dikembangkan sebagai bagian dari Tugas Besar mata kuliah **Analisis K
 - Start selalu di kiri atas (hijau), Exit di kanan bawah (merah)
 
 ### 2. Jalankan Algoritma
-- Klik tombol "Run BFS Iterative", "Run BFS Recursive", atau "Run DFS"
+- Klik tombol "Run DFS Iterative" atau "Run DFS Recursive"
 - Amati animasi pencarian secara real-time:
   - Nodes visited: **Kuning**
-  - Jalur terpendek: **Biru/Ungu/Merah**
+  - Jalur terpendek: **Biru/Merah**
 - Gunakan kontrol **Play/Pause/Reset** dan **Speed** (1x-10x)
 - Drag progress bar untuk maju/mundur animasi
 
@@ -120,9 +117,7 @@ Proyek ini dikembangkan sebagai bagian dari Tugas Besar mata kuliah **Analisis K
 maze-algorithm-comparison/
 ├── app.py                 # Main Flask application
 ├── maze.py                # Maze generation logic
-├── bfs_iterative.py       # Iterative BFS implementation
-├── bfs_recursive.py       # Recursive BFS implementation
-├── dfs.py                 # DFS implementation
+├── dfs.py                 # DFS implementations (iterative and recursive)
 ├── analysis.py            # Complexity analysis with matplotlib
 ├── templates/
 │   └── index.html         # Main HTML template
@@ -136,12 +131,12 @@ maze-algorithm-comparison/
 ## 📈 Analisis Kompleksitas
 
 ### Teori Kompleksitas
-- **BFS**: O(V + E) - Garansi jalur terpendek
-- **DFS**: O(V + E) - Tidak garansi terpendek, tapi lebih sederhana
+- **DFS**: O(V + E) - Eksplorasi depth-first
+- **Iteratif vs Rekursif**: Iteratif lebih efisien untuk maze besar (tidak ada recursion depth limit)
 
 ### Perbandingan Praktis
 - **Iteratif vs Rekursif**: Iteratif lebih efisien untuk maze besar (tidak ada recursion depth limit)
-- **BFS vs DFS**: BFS lebih baik untuk shortest path, DFS untuk eksplorasi
+- **Space Complexity**: Iteratif O(V), Rekursif O(V + H) dimana H adalah kedalaman rekursi
 
 ## 🎯 Fitur Khusus
 

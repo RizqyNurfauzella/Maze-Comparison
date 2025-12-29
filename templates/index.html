@@ -11,7 +11,7 @@
     <div class="container">
         <div class="input-section">
             <label for="n">Maze Size (n x n):</label>
-            <input type="number" id="n" value="15" min="5" max="100">
+            <input type="number" id="n" value="15" min="5" max="10000">
             <br>
             <p>Start: (0,0) | Exit: (n-1, n-1)</p>
             <br>
@@ -21,9 +21,8 @@
             <div id="maze"></div>
         </div>
         <div class="control-section">
-            <button id="run-iterative">Run BFS Iterative</button>
-            <button id="run-recursive">Run BFS Recursive</button>
-            <button id="run-dfs">Run DFS</button>
+            <button id="run-dfs-iterative">Run DFS Iterative</button>
+            <button id="run-dfs-recursive">Run DFS Recursive</button>
         </div>
         <div class="playback-section">
             <button id="play-pause">Play</button>
@@ -35,19 +34,18 @@
         </div>
         <div class="results">
             <h2>Results</h2>
-            <div id="iterative-result"></div>
-            <div id="recursive-result"></div>
-            <div id="dfs-result"></div>
+            <div id="dfs-iterative-result"></div>
+            <div id="dfs-recursive-result"></div>
         </div>
         <div class="analysis-input">
-            <label for="analysis-n">Max Maze Size (N) for Analysis:</label>
-            <input type="number" id="analysis-n" value="30" min="5" max="100">
             <button id="run-analysis">Run Analysis</button>
             <div class="view-switch">
                 <input type="radio" id="view-table" name="view" value="table" checked>
                 <label for="view-table">Table</label>
-                <input type="radio" id="view-graph" name="view" value="graph">
-                <label for="view-graph">Graph</label>
+                <input type="radio" id="view-line" name="view" value="line">
+                <label for="view-line">Line Chart</label>
+                <input type="radio" id="view-bar" name="view" value="bar">
+                <label for="view-bar">Bar Chart</label>
             </div>
         </div>
         <div class="analysis-section">
@@ -59,6 +57,7 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

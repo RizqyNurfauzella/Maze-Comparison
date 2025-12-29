@@ -1,25 +1,23 @@
 document.addEventListener('DOMContentLoaded', function() {
     const generateBtn = document.getElementById('generate');
-    const runIterativeBtn = document.getElementById('run-iterative');
-    const runRecursiveBtn = document.getElementById('run-recursive');
-    const runDfsBtn = document.getElementById('run-dfs');
+    const runDfsIterativeBtn = document.getElementById('run-dfs-iterative');
+    const runDfsRecursiveBtn = document.getElementById('run-dfs-recursive');
     const runAnalysisBtn = document.getElementById('run-analysis');
     const viewTableRadio = document.getElementById('view-table');
-    const viewGraphRadio = document.getElementById('view-graph');
+    const viewLineRadio = document.getElementById('view-line');
+    const viewBarRadio = document.getElementById('view-bar');
     const playPauseBtn = document.getElementById('play-pause');
     const resetBtn = document.getElementById('reset');
     const progressInput = document.getElementById('progress');
     const speedInput = document.getElementById('speed');
     const speedValue = document.getElementById('speed-value');
     const mazeDiv = document.getElementById('maze');
-    const iterativeResult = document.getElementById('iterative-result');
-    const recursiveResult = document.getElementById('recursive-result');
-    const dfsResult = document.getElementById('dfs-result');
+    const dfsIterativeResult = document.getElementById('dfs-iterative-result');
+    const dfsRecursiveResult = document.getElementById('dfs-recursive-result');
     const analysisContent = document.getElementById('analysis-content');
     const exportControls = document.getElementById('export-controls');
     const exportTableBtn = document.getElementById('export-table');
     const downloadChartBtn = document.getElementById('download-chart');
-    const analysisN = document.getElementById('analysis-n');
 
     let currentAnimation = null;
     let isPlaying = false;
@@ -34,12 +32,12 @@ document.addEventListener('DOMContentLoaded', function() {
     let exit = [14, 14]; // will be set randomly
 
     generateBtn.addEventListener('click', generateMaze);
-    runIterativeBtn.addEventListener('click', runIterative);
-    runRecursiveBtn.addEventListener('click', runRecursive);
-    runDfsBtn.addEventListener('click', runDfs);
+    runDfsIterativeBtn.addEventListener('click', runDfsIterative);
+    runDfsRecursiveBtn.addEventListener('click', runDfsRecursive);
     runAnalysisBtn.addEventListener('click', runAnalysis);
     viewTableRadio.addEventListener('change', updateView);
-    viewGraphRadio.addEventListener('change', updateView);
+    viewLineRadio.addEventListener('change', updateView);
+    viewBarRadio.addEventListener('change', updateView);
     exportTableBtn.addEventListener('click', exportTableToCSV);
     downloadChartBtn.addEventListener('click', downloadChartImage);
     playPauseBtn.addEventListener('click', togglePlayPause);
@@ -66,7 +64,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Auto-run analysis for large n
             if (n > 70) {
-                document.getElementById('analysis-n').value = n;
                 runAnalysis();
             }
         });
@@ -74,6 +71,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderMaze(maze) {
         mazeDiv.innerHTML = '';
+        if (n > 1000) {
+            mazeDiv.innerHTML = '<p>Maze too large to display. Use Analysis for performance metrics.</p>';
+            return;
+        }
         if (n > 70) {
             mazeDiv.innerHTML = '<p>Maze too large to display. Use Analysis for performance metrics.</p>';
             return;
@@ -107,12 +108,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function runIterative() {
+
+    function runDfsIterative() {
         if (!currentMaze) {
             alert('Generate maze first!');
             return;
         }
-        fetch('/run_bfs_iterative', {
+        fetch('/run_dfs_iterative', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -121,19 +123,19 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            displayResult(data, 'iterative', iterativeResult);
-            animationData = { visited: data.visited, path: data.path, className: 'iterative-path' };
+            displayResult(data, 'DFS Iterative', dfsIterativeResult);
+            animationData = { visited: data.visited, path: data.path, className: 'dfs-iterative-path' };
             totalSteps = data.visited.length + data.path.length;
             resetAnimation();
         });
     }
 
-    function runRecursive() {
+    function runDfsRecursive() {
         if (!currentMaze) {
             alert('Generate maze first!');
             return;
         }
-        fetch('/run_bfs_recursive', {
+        fetch('/run_dfs_recursive', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -142,38 +144,18 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            displayResult(data, 'recursive', recursiveResult);
-            animationData = { visited: data.visited, path: data.path, className: 'recursive-path' };
-            totalSteps = data.visited.length + data.path.length;
-            resetAnimation();
-        });
-    }
-
-    function runDfs() {
-        if (!currentMaze) {
-            alert('Generate maze first!');
-            return;
-        }
-        fetch('/run_dfs', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ maze: currentMaze, start: start, exit: exit }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            displayResult(data, 'dfs', dfsResult);
-            animationData = { visited: data.visited, path: data.path, className: 'dfs-path' };
+            displayResult(data, 'DFS Recursive', dfsRecursiveResult);
+            animationData = { visited: data.visited, path: data.path, className: 'dfs-recursive-path' };
             totalSteps = data.visited.length + data.path.length;
             resetAnimation();
         });
     }
 
     function runAnalysis() {
-        const maxN = parseInt(analysisN.value);
+        const maxN = n;  // Use the current maze size n
         const sizes = [];
-        for (let i = 5; i <= maxN; i += 5) {
+        const step = maxN > 100 ? 50 : 5;
+        for (let i = 5; i <= maxN; i += step) {
             sizes.push(i);
         }
         console.log('Running analysis for sizes:', sizes);
@@ -209,17 +191,104 @@ document.addEventListener('DOMContentLoaded', function() {
         const view = document.querySelector('input[name="view"]:checked').value;
         if (view === 'table') {
             // Table
-            let tableHtml = '<table id="analysis-table"><thead><tr><th>N</th><th>BFS Iterative Time (s)</th><th>BFS Recursive Time (s)</th><th>DFS Time (s)</th><th>BFS Iterative Nodes</th><th>BFS Recursive Nodes</th><th>DFS Nodes</th></tr></thead><tbody>';
+            let tableHtml = '<table id="analysis-table"><thead><tr><th>N</th><th>DFS Iterative Time (s)</th><th>DFS Recursive Time (s)</th><th>DFS Iterative Nodes</th><th>DFS Recursive Nodes</th></tr></thead><tbody>';
             for (let i = 0; i < analysisData.sizes.length; i++) {
-                tableHtml += `<tr><td>${analysisData.sizes[i]}</td><td>${analysisData.iterative_times[i].toFixed(6)}</td><td>${analysisData.recursive_times[i].toFixed(6)}</td><td>${analysisData.dfs_times[i].toFixed(6)}</td><td>${analysisData.iterative_nodes[i]}</td><td>${analysisData.recursive_nodes[i]}</td><td>${analysisData.dfs_nodes[i]}</td></tr>`;
+                const recTime = analysisData.recursive_times[i] !== null ? analysisData.recursive_times[i].toFixed(6) : 'N/A';
+                const recNodes = analysisData.recursive_nodes[i] !== null ? analysisData.recursive_nodes[i] : 'N/A';
+                tableHtml += `<tr><td>${analysisData.sizes[i]}</td><td>${analysisData.iterative_times[i].toFixed(6)}</td><td>${recTime}</td><td>${analysisData.iterative_nodes[i]}</td><td>${recNodes}</td></tr>`;
             }
             tableHtml += '</tbody></table>';
             analysisContent.innerHTML = tableHtml;
             exportControls.style.display = 'flex';
-        } else {
-            // Graph
-            analysisContent.innerHTML = '<img id="analysis-chart-img" src="/static/analysis.png" alt="Analysis Chart" style="max-width: 100%; height: auto;">';
-            exportControls.style.display = 'flex';
+        } else if (view === 'line') {
+            // Line Chart
+            analysisContent.innerHTML = '<canvas id="analysis-chart" width="800" height="400"></canvas>';
+            const ctx = document.getElementById('analysis-chart').getContext('2d');
+            const datasets = [
+                {
+                    label: 'DFS Iterative Time',
+                    data: analysisData.sizes.map((size, i) => ({ x: size, y: analysisData.iterative_times[i] })),
+                    borderColor: 'blue',
+                    fill: false
+                },
+                {
+                    label: 'DFS Recursive Time',
+                    data: analysisData.sizes.map((size, i) => analysisData.recursive_times[i] !== null ? { x: size, y: analysisData.recursive_times[i] } : null).filter(p => p !== null),
+                    borderColor: 'red',
+                    fill: false
+                }
+            ];
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: datasets
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            title: {
+                                display: true,
+                                text: 'Maze Size (n x n)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Time (seconds)'
+                            }
+                        }
+                    }
+                }
+            });
+            exportControls.style.display = 'none';
+        } else if (view === 'bar') {
+            // Bar Chart
+            analysisContent.innerHTML = '<canvas id="analysis-chart" width="800" height="400"></canvas>';
+            const ctx = document.getElementById('analysis-chart').getContext('2d');
+            const labels = analysisData.sizes.map(size => size.toString());
+            const datasets = [
+                {
+                    label: 'DFS Iterative Time',
+                    data: analysisData.iterative_times,
+                    backgroundColor: 'rgba(0, 0, 255, 0.5)',
+                    borderColor: 'blue',
+                    borderWidth: 1
+                },
+                {
+                    label: 'DFS Recursive Time',
+                    data: analysisData.recursive_times.map(t => t !== null ? t : 0), // Use 0 for null to show bars, but perhaps filter
+                    backgroundColor: 'rgba(255, 0, 0, 0.5)',
+                    borderColor: 'red',
+                    borderWidth: 1
+                }
+            ];
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Maze Size (n x n)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Time (seconds)'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            exportControls.style.display = 'none';
         }
     }
 
@@ -246,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear previous animation
         const cells = mazeDiv.querySelectorAll('.cell');
         cells.forEach(cell => {
-            cell.classList.remove('iterative-path', 'recursive-path', 'dfs-path', 'visited');
+            cell.classList.remove('dfs-iterative-path', 'dfs-recursive-path', 'visited');
         });
         // Re-render maze
         renderMaze(currentMaze);
@@ -279,9 +348,11 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        let csvContent = 'N,BFS Iterative Time (s),BFS Recursive Time (s),DFS Time (s),BFS Iterative Nodes,BFS Recursive Nodes,DFS Nodes\n';
+        let csvContent = 'N,DFS Iterative Time (s),DFS Recursive Time (s),DFS Iterative Nodes,DFS Recursive Nodes\n';
         for (let i = 0; i < analysisData.sizes.length; i++) {
-            csvContent += `${analysisData.sizes[i]},${analysisData.iterative_times[i].toFixed(6)},${analysisData.recursive_times[i].toFixed(6)},${analysisData.dfs_times[i].toFixed(6)},${analysisData.iterative_nodes[i]},${analysisData.recursive_nodes[i]},${analysisData.dfs_nodes[i]}\n`;
+            const recTime = analysisData.recursive_times[i] !== null ? analysisData.recursive_times[i].toFixed(6) : 'N/A';
+            const recNodes = analysisData.recursive_nodes[i] !== null ? analysisData.recursive_nodes[i] : 'N/A';
+            csvContent += `${analysisData.sizes[i]},${analysisData.iterative_times[i].toFixed(6)},${recTime},${analysisData.iterative_nodes[i]},${recNodes}\n`;
         }
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -320,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderAnimationAtStep(step) {
         const cells = mazeDiv.querySelectorAll('.cell');
         cells.forEach(cell => {
-            cell.classList.remove('iterative-path', 'recursive-path', 'dfs-path', 'visited');
+            cell.classList.remove('dfs-iterative-path', 'dfs-recursive-path', 'visited');
         });
 
         const visitedEnd = Math.min(step, animationData.visited.length);
@@ -344,7 +415,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function displayResult(data, type, element) {
-        const algoName = type === 'dfs' ? 'DFS' : `${type.charAt(0).toUpperCase() + type.slice(1)} BFS`;
+        const algoName = 'DFS';
         if (data.path) {
             element.innerHTML = `
                 <h3>${algoName}</h3>
@@ -362,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const cells = mazeDiv.querySelectorAll('.cell');
         cells.forEach(cell => {
-            cell.classList.remove('iterative-path', 'recursive-path', 'dfs-path', 'visited');
+            cell.classList.remove('dfs-iterative-path', 'dfs-recursive-path', 'visited');
         });
 
         let i = 0;

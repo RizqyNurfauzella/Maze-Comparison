@@ -144,8 +144,12 @@ button:hover {
     background-color: #800080;
 }
 
-.dfs-path {
-    background-color: #ff0000; /* red for DFS */
+.dfs-iterative-path {
+    background-color: #0000ff; /* blue for DFS Iterative */
+}
+
+.dfs-recursive-path {
+    background-color: #ff0000; /* red for DFS Recursive */
 }
 
 .control-section {
