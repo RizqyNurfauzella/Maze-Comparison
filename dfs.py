@@ -40,8 +40,9 @@ def dfs_iterative(maze, start, exit_pos):
             visited[current[0]][current[1]] = True
             if current == exit_pos:
                 found = True
-                break
-            for neighbor in get_neighbors(current):
+                break            
+            neighbors = get_neighbors(current)
+            for neighbor in reversed(neighbors):
                 if is_valid_move(maze, neighbor, visited):
                     parent[neighbor[0]][neighbor[1]] = current
                     stack.append(neighbor)
