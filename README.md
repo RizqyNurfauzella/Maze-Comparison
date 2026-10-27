@@ -28,12 +28,14 @@ Proyek ini dikembangkan sebagai bagian dari Tugas Besar mata kuliah **Analisis K
 - **DFS Iteratif**: Implementasi standar dengan stack
 - **DFS Rekursif**: Implementasi rekursif murni untuk eksplorasi maze
 
+> **Catatan:** DFS menemukan salah satu jalur yang valid dari start ke exit, tetapi tidak menjamin jalur terpendek.
+
 ### 🎬 Visualisasi Interaktif
 - Animasi step-by-step pencarian node (visited nodes berwarna kuning)
 - Progress bar dengan scrubbing (maju/mundur animasi)
 - Kontrol **Play/Pause/Reset**
 - Speed control (1x - 10x)
-- Highlight jalur terpendek dengan warna berbeda:
+- Highlight jalur yang ditemukan dengan warna berbeda:
   - DFS Iterative: **Biru**
   - DFS Recursive: **Merah**
 
@@ -100,7 +102,7 @@ Proyek ini dikembangkan sebagai bagian dari Tugas Besar mata kuliah **Analisis K
 - Klik tombol "Run DFS Iterative" atau "Run DFS Recursive"
 - Amati animasi pencarian secara real-time:
   - Nodes visited: **Kuning**
-  - Jalur terpendek: **Biru/Merah**
+  - Jalur yang ditemukan: **Biru/Merah**
 - Gunakan kontrol **Play/Pause/Reset** dan **Speed** (1x-10x)
 - Drag progress bar untuk maju/mundur animasi
 
