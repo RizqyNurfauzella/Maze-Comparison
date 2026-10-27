@@ -70,8 +70,8 @@ Proyek ini dikembangkan sebagai bagian dari Tugas Besar mata kuliah **Analisis K
 
 1. **Clone Repository**
    ```bash
-   git clone <repository-url>
-   cd maze-algorithm-comparison
+   git clone https://github.com/RizqyNurfauzella/Maze-Comparison.git
+   cd Maze-Comparison
    ```
 
 2. **Install Dependencies**
@@ -114,7 +114,7 @@ Proyek ini dikembangkan sebagai bagian dari Tugas Besar mata kuliah **Analisis K
 ## 📁 Struktur Proyek
 
 ```
-maze-algorithm-comparison/
+Maze-Comparison/
 ├── app.py                 # Main Flask application
 ├── maze.py                # Maze generation logic
 ├── dfs.py                 # DFS implementations (iterative and recursive)
